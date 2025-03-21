@@ -115,7 +115,7 @@ exports.deleteMovie = async (req,res) => {
         const database = client.db('sample_mflix')
         const moviesCollection = database.collection('movies')
         console.log(req.params.id)
-        const query = { _id: `ObjectId(${req.params.id})`}
+        const query = { _id: new ObjectId(req.params.id)}
         const result = await moviesCollection.deleteOne(query)
         res.status(200).json({
             message: "Ok",
