@@ -8,4 +8,5 @@ router.post("/movies/genres/search", moviesController.getMoviesPerGenre)
 router.get("/movies/genres/:genre", moviesController.getMoviesPerGenre)
 router.put("/movies/new", moviesController.setMovie)
 router.delete("/movies/:id", moviesController.deleteMovie)
+router.patch("/movies", moviesController.updateMovie)
 module.exports = router

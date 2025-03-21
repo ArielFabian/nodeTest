@@ -129,3 +129,41 @@ exports.deleteMovie = async (req,res) => {
         await client.close()
     }
 }
+
+exports.updateMovie = async (req, res) => {
+    try {
+        if(!req.body){
+            return res.status(400).json({
+                message: 'Error',
+                details: "There is no body for this request" 
+            })
+        }
+        await client.connect()
+        const database = client.db('sample_mflix')
+        const moviesCollection = database.collection('movies')
+        const movie = new Movie(req.body)
+        const filter = {
+            _id: new ObjectId(movie._id)
+        }
+        const movieFields = {
+            $set: {
+                plot: movie.plot,
+                genres: movie.genres,
+                runtime: movie.runtime,
+                title: movie.title,
+                year: movie.year
+            }
+        }
+        const result = await moviesCollection.updateOne(filter, movieFields)
+        res.status(200).json({
+            message: "Ok",
+            data: result
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: `An error occurred: ${error}`
+        })
+    } finally {
+        await client.close()
+    }
+}
