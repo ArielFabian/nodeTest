@@ -7,7 +7,7 @@ exports.getMoviesPerTitle = async (req,res) => {
         await client.connect()
         const database = client.db('sample_mflix')
         const moviesCollection = database.collection('movies')
-        const query = { 
+        const query = {
             $or:[
                 {
                     title: {
@@ -48,7 +48,7 @@ exports.getMoviesPerGenre = async (req, res) => {
         if (genreFilters.length === 0) {
             return res.status(400).json({
                 message: 'Error',
-                details: "There is no body for this request" 
+                details: "There is no body for this request"
             })
         }
 
@@ -82,7 +82,7 @@ exports.setMovie = async (req, res) => {
         if(!req.body){
             return res.status(400).json({
                 message: 'Error',
-                details: "There is no body for this request" 
+                details: "There is no body for this request"
             })
         }
         await client.connect()
@@ -108,7 +108,7 @@ exports.deleteMovie = async (req,res) => {
         if(!req.params.id){
             return res.status(400).json({
                 message: 'Error',
-                details: "There is specified id" 
+                details: "There is specified id"
             })
         }
         await client.connect()
@@ -135,26 +135,41 @@ exports.updateMovie = async (req, res) => {
         if(!req.body){
             return res.status(400).json({
                 message: 'Error',
-                details: "There is no body for this request" 
+                details: "There is no body for this request"
             })
         }
+        var movies = []
+        for (const movie of req.body) {
+            movies.push(new Movie(movie))
+        }
+        if(movies.length <= 0){
+            return res.status(400).json({
+                message: 'Error',
+                details: "There is no body for this request"
+            })
+        }  
         await client.connect()
         const database = client.db('sample_mflix')
         const moviesCollection = database.collection('movies')
-        const movie = new Movie(req.body)
-        const filter = {
-            _id: new ObjectId(movie._id)
-        }
-        const movieFields = {
-            $set: {
-                plot: movie.plot,
-                genres: movie.genres,
-                runtime: movie.runtime,
-                title: movie.title,
-                year: movie.year
+        const bulk = movies.map( movie => {
+            return {
+                updateOne: {
+                    filter: {
+                        _id: new ObjectId(movie._id)
+                    },
+                    update: {
+                        $set: {
+                            plot: movie.plot,
+                            genres: movie.genres,
+                            runtime: movie.runtime,
+                            title: movie.title,
+                            year: movie.year
+                        }
+                    }
+                }
             }
-        }
-        const result = await moviesCollection.updateOne(filter, movieFields)
+        })
+        const result = await moviesCollection.bulkWrite(bulk)
         res.status(200).json({
             message: "Ok",
             data: result
