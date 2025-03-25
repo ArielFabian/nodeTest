@@ -26,7 +26,11 @@ exports.getMoviesPerTitle = async (req,res) => {
         const response = await moviesCollection.find(query).toArray()
         let movies = []
         for (const movie of response) {
-            movies.push(new Movie(movie))
+            try {
+                movies.push(new Movie(movie))
+            } catch (error) {
+                continue
+            }
         }
         res.status(200).json({
             message: "Ok",

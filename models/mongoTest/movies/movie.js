@@ -1,10 +1,7 @@
 class Movie {
     constructor({ _id, plot, genres, runtime, title, year }) {
         this._id = _id
-        if(!plot){
-            throw new Error("Plot is required")
-        }
-        this.plot = plot
+        this.plot = plot ?? "No plot"
         if(!genres || genres.length <= 0){
             throw new Error("Genres are required")
         }
